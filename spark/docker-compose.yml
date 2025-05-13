@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  spark-master:
+    image: bitnami/spark:3.3
+    container_name: spark-master
+    hostname: spark-master
+    ports:
+      - "7077:7077"   # Spark master port
+      - "8080:8080"   # Spark master web UI
+    environment:
+      - SPARK_MODE=master
+      - SPARK_RPC_AUTHENTICATION_ENABLED=no
+      - SPARK_RPC_ENCRYPTION_ENABLED=no
+      - SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED=no
+      - SPARK_SSL_ENABLED=no
+    volumes:
+      - ./data:/data
+      - ./logs:/opt/bitnami/spark/logs
+
+  spark-worker-1:
+    image: bitnami/spark:3.3
+    container_name: spark-worker-1
+    depends_on:
+      - spark-master
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+    volumes:
+      - ./data:/data
+      - ./logs:/opt/bitnami/spark/logs
+
+  spark-worker-2:
+    image: bitnami/spark:3.3
+    container_name: spark-worker-2
+    depends_on:
+      - spark-master
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+    volumes:
+      - ./data:/data
+      - ./logs:/opt/bitnami/spark/logs
+
+  spark-worker-3:
+    image: bitnami/spark:3.3
+    container_name: spark-worker-3
+    depends_on:
+      - spark-master
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER_URL=spark://spark-master:7077
+    volumes:
+      - ./data:/data
+      - ./logs:/opt/bitnami/spark/logs
+
+  spark-history-server:
+    image: bitnami/spark:3.3
+    container_name: spark-history
+    ports:
+      - "18080:18080"
+    environment:
+      - SPARK_MODE=history
+      - SPARK_HISTORY_OPTS=-Dspark.history.fs.logDirectory=/opt/bitnami/spark/logs
+    volumes:
+      - ./logs:/opt/bitnami/spark/logs
